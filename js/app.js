@@ -1,6 +1,6 @@
 // ===== CONFIG & STATE =====
-const API_URL = 'http://localhost:3001/contacts';
-const ACTIVITY_URL = 'http://localhost:3001/activityLogs';
+const API_URL = 'https://699d424783e60a406a45a3fc.mockapi.io/contacts';
+const ACTIVITY_URL = 'https://699d424783e60a406a45a3fc.mockapi.io/activityLogs';
 
 let contacts = [];
 let activities = [];
@@ -29,6 +29,7 @@ const contactForm = document.getElementById('contactForm');
 const contactId = document.getElementById('contactId');
 const modalCloseBtn = document.getElementById('modalCloseBtn');
 const cancelBtn = document.getElementById('cancelBtn');
+const saveBtn = document.getElementById('saveBtn');
 
 // Form Inputs & Errors
 const nameInput = document.getElementById('nameInput');
@@ -88,7 +89,7 @@ async function fetchContacts() {
 
 async function fetchActivities() {
     try {
-        const res = await fetch(`${ACTIVITY_URL}?_sort=timestamp&_order=desc&_limit=20`);
+        const res = await fetch(`${ACTIVITY_URL}?sortBy=timestamp&order=desc&page=1&limit=20`);
         activities = await res.json();
         renderActivityLog();
     } catch (e) {
@@ -599,6 +600,11 @@ addBtn.addEventListener('click', () => {
     nameInput.classList.remove('invalid'); emailInput.classList.remove('invalid'); phoneInput.classList.remove('invalid');
     nameError.style.display = 'none'; emailError.style.display = 'none'; phoneError.style.display = 'none';
     
+    // reset loading state
+    saveBtn.classList.remove('loading');
+    saveBtn.querySelector('.spinner').style.display = 'none';
+    cancelBtn.disabled = false;
+    
     modalTitle.textContent = '➕ เพิ่มผู้ติดต่อ';
     modal.style.display = 'flex';
 });
@@ -618,6 +624,11 @@ function editContact(id, event) {
     // reset validation UI
     nameInput.classList.remove('invalid'); emailInput.classList.remove('invalid'); phoneInput.classList.remove('invalid');
     nameError.style.display = 'none'; emailError.style.display = 'none'; phoneError.style.display = 'none';
+
+    // reset loading state
+    saveBtn.classList.remove('loading');
+    saveBtn.querySelector('.spinner').style.display = 'none';
+    cancelBtn.disabled = false;
 
     modalTitle.textContent = '✏️ แก้ไขผู้ติดต่อ';
     modal.style.display = 'flex';
@@ -642,10 +653,13 @@ contactForm.addEventListener('submit', async (e) => {
         createdAt: id ? contacts.find(c=>c.id===id).createdAt : new Date().toISOString()
     };
 
-    modal.style.display = 'none';
+    // Show loading state
+    saveBtn.classList.add('loading');
+    saveBtn.querySelector('.spinner').style.display = 'inline-block';
+    cancelBtn.disabled = true;
 
-    if (id) {
-        try {
+    try {
+        if (id) {
             await fetch(`${API_URL}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -653,10 +667,7 @@ contactForm.addEventListener('submit', async (e) => {
             });
             await logActivity('UPDATE', data.name);
             showToast(`แก้ไข "${data.name}" สำเร็จ! ✅`);
-            fetchContacts();
-        } catch(e) { showToast('อัพเดทไม่สำเร็จ', 'error'); }
-    } else {
-        try {
+        } else {
             await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -664,10 +675,32 @@ contactForm.addEventListener('submit', async (e) => {
             });
             await logActivity('CREATE', data.name);
             showToast(`เพิ่ม "${data.name}" สำเร็จ! ✅`);
-            fetchContacts();
-        } catch(e) { showToast('เพิ่มข้อมูลไม่สำเร็จ', 'error'); }
+        }
+
+        modal.style.display = 'none';
+        contactForm.reset();
+        await fetchContacts();
+
+    } catch(e) {
+        showToast(id ? 'อัพเดทไม่สำเร็จ' : 'เพิ่มข้อมูลไม่สำเร็จ', 'error');
+    } finally {
+        // Hide loading state
+        saveBtn.classList.remove('loading');
+        saveBtn.querySelector('.spinner').style.display = 'none';
+        cancelBtn.disabled = false;
     }
 });
+
+// ==============================================
+// 🔔 TOAST NOTIFICATION
+// ==============================================
+function showToast(message, type = 'success') {
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => {
+        toast.className = 'toast';
+    }, 3000);
+}
 
 // ==============================================
 // 🔎 SEARCH & SORT BINDINGS
