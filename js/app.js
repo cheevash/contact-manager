@@ -416,12 +416,13 @@ async function toggleFav(id, name, event) {
     if(!contact) return;
     
     const newFav = !contact.favorite;
+    const updatedContact = { ...contact, favorite: newFav };
     
     try {
         await fetch(`${API_URL}/${id}`, {
-            method: 'PATCH', // Update partial
+            method: 'PUT', // Update full object for MockAPI
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ favorite: newFav })
+            body: JSON.stringify(updatedContact)
         });
         
         await logActivity(newFav ? 'FAVORITE' : 'UNFAVORITE', name);
