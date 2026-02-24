@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Manager — CRUD App</title>
+    <meta name="description" content="Contact Manager CRUD Application — ระบบจัดการรายชื่อผู้ติดต่อด้วย REST API">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="header-content">
+            <h1>📇 Contact Manager</h1>
+            <p>ระบบจัดการรายชื่อผู้ติดต่อ — CRUD + REST API (Advanced Features)</p>
+        </div>
+    </header>
+
+    <div class="layout-wrapper">
+        <!-- ===== LEFT SIDEBAR: CHART & ACTIVITY LOG ===== -->
+        <aside class="sidebar">
+            <!-- Chart Section -->
+            <div class="sidebar-box chart-section">
+                <h3>📊 สัดส่วนตามบริษัท</h3>
+                <div class="chart-container">
+                    <canvas id="companyChart"></canvas>
+                </div>
+                <!-- แสดงเมื่อไม่มีข้อมูล Chart -->
+                <div id="emptyChartState" class="empty-chart" style="display: none;">
+                    <p>ไม่มีข้อมูลบริษัท</p>
+                </div>
+            </div>
+
+            <!-- Activity Log Section -->
+            <div class="sidebar-box activity-section">
+                <h3>🔔 กิจกรรมล่าสุด</h3>
+                <div id="activityLogList" class="activity-list">
+                    <!-- Activity logs จะถูกสร้างด้วย JavaScript -->
+                </div>
+                <div id="emptyActivityState" class="empty-activity" style="display: none;">
+                    <p>ยังไม่มีประวัติกิจกรรม</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content">
+            <!-- ===== STATS DASHBOARD ===== -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <span class="stat-icon">👥</span>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalContacts">0</span>
+                        <span class="stat-label">ผู้ติดต่อทั้งหมด</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🏢</span>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalCompanies">0</span>
+                        <span class="stat-label">บริษัท</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">⭐</span>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalFavorites">0</span>
+                        <span class="stat-label">รายการโปรด</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TOOLBAR ===== -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="ค้นหาชื่อ, อีเมล, บริษัท..."
+                    >
+                </div>
+                
+                <div class="filters">
+                    <button id="filterFavBtn" class="btn btn-filter" title="รายการโปรด">⭐</button>
+                    <select id="sortSelect" class="sort-select">
+                        <option value="default">เรียงลำดับ</option>
+                        <option value="name-asc">ชื่อ A → Z</option>
+                        <option value="name-desc">ชื่อ Z → A</option>
+                        <option value="company">ตามบริษัท</option>
+                    </select>
+                </div>
+                
+                <button id="addBtn" class="btn btn-primary">
+                    ➕ เพิ่มผู้ติดต่อ
+                </button>
+            </div>
+
+            <!-- ===== BULK ACTION BAR ===== -->
+            <div id="bulkActionBar" class="bulk-action-bar" style="display: none;">
+                <div class="bulk-left">
+                    <input type="checkbox" id="selectAllCb" class="custom-checkbox">
+                    <label for="selectAllCb" class="bulk-text">เลือกทั้งหมด</label>
+                    <span id="selectedCount" class="selected-count">เลือก 0 รายการ</span>
+                </div>
+                <button id="bulkDeleteBtn" class="btn btn-danger btn-sm">🗑️ ลบที่เลือก</button>
+            </div>
+
+            <!-- ===== CONTACT CARDS ===== -->
+            <main class="container">
+                <div id="contactGrid" class="contact-grid">
+                    <!-- Cards จะถูกสร้างด้วย JavaScript -->
+                </div>
+
+                <!-- แสดงเมื่อไม่มีข้อมูล -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <span class="empty-icon">📭</span>
+                    <h3>ยังไม่มีผู้ติดต่อ</h3>
+                    <p>กดปุ่ม "เพิ่มผู้ติดต่อ" เพื่อเริ่มต้น!</p>
+                </div>
+            </main>
+        </div>
+    </div> <!-- end layout-wrapper -->
+
+    <!-- ===== MODAL FORM (สำหรับ Create/Edit) ===== -->
+    <div id="modal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">เพิ่มผู้ติดต่อ</h2>
+                <button id="modalCloseBtn" class="btn-close">✕</button>
+            </div>
+            <form id="contactForm" novalidate>
+                <div class="form-group">
+                    <label for="nameInput">ชื่อ-นามสกุล <span class="required">*</span></label>
+                    <input type="text" id="nameInput" required placeholder="เช่น สมชาย ใจดี">
+                    <span class="error-text" id="nameError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="emailInput">อีเมล <span class="required">*</span></label>
+                    <input type="email" id="emailInput" required placeholder="เช่น somchai@email.com">
+                    <span class="error-text" id="emailError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="phoneInput">เบอร์โทร</label>
+                    <input type="tel" id="phoneInput" placeholder="เช่น 081-234-5678">
+                    <span class="error-text" id="phoneError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="companyInput">บริษัท</label>
+                    <input type="text" id="companyInput" placeholder="เช่น บริษัท ABC จำกัด">
+                </div>
+
+                <!-- ซ่อน ID ไว้สำหรับ Edit mode -->
+                <input type="hidden" id="contactId">
+
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== CONTACT DETAIL MODAL ===== -->
+    <div id="detailModal" class="modal-overlay" style="display: none;">
+        <div class="modal modal-detail">
+            <div class="modal-header border-bottom">
+                <h2>รายละเอียดผู้ติดต่อ</h2>
+                <button id="detailCloseBtn" class="btn-close">✕</button>
+            </div>
+            <div class="detail-content" id="detailContent">
+                <!-- ข้อมูลจะถูกโหลดด้วย JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DELETE CONFIRMATION MODAL ===== -->
+    <div id="deleteModal" class="modal-overlay" style="display: none;">
+        <div class="modal modal-delete">
+            <div class="delete-icon-wrap">
+                <span class="delete-icon-big">⚠️</span>
+            </div>
+            <h2>ยืนยันการลบ</h2>
+            <p id="deleteMessage">คุณต้องการลบผู้ติดต่อนี้ใช่หรือไม่?</p>
+            <p class="delete-warning">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+            <div class="form-actions">
+                <button id="deleteCancelBtn" class="btn btn-secondary">ยกเลิก</button>
+                <button id="deleteConfirmBtn" class="btn btn-danger">🗑️ ลบ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST NOTIFICATION ===== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-title">🛠️ Built with</p>
+            <div class="tech-tags">
+                <span class="tech-tag">HTML5</span>
+                <span class="tech-tag">CSS3</span>
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">Chart.js</span>
+                <span class="tech-tag">REST API</span>
+                <span class="tech-tag">JSON Server</span>
+            </div>
+            <p class="footer-copy">© 2026 Contact Manager — Advanced Features Demo</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>

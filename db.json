@@ -1,0 +1,90 @@
+{
+  "contacts": [
+    {
+      "id": "1",
+      "name": "กิตติพงษ์ วงศ์สวัสดิ์",
+      "email": "kittipong@techvision.co.th",
+      "phone": "081-234-5678",
+      "company": "TechVision Co., Ltd.",
+      "favorite": false,
+      "createdAt": "2026-02-24T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "name": "พิมพ์ลภัส ศรีสุวรรณ",
+      "email": "pimlapat@greenleaf.com",
+      "phone": "089-876-5432",
+      "company": "GreenLeaf Solutions",
+      "favorite": false,
+      "createdAt": "2026-02-24T10:01:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Alexander Chen",
+      "email": "alex.chen@innovatech.io",
+      "phone": "092-111-2233",
+      "company": "InnovaTech Asia",
+      "favorite": true,
+      "createdAt": "2026-02-24T10:02:00Z"
+    },
+    {
+      "id": "4",
+      "name": "สุภาวดี จันทร์เพ็ญ",
+      "email": "supawadee@blueocean.co.th",
+      "phone": "095-444-5566",
+      "company": "Blue Ocean Digital",
+      "favorite": false,
+      "createdAt": "2026-02-24T10:03:00Z"
+    },
+    {
+      "id": "5",
+      "name": "ธนกฤต อัศวเมธี",
+      "email": "thanakrit@startupbkk.com",
+      "phone": "063-789-0123",
+      "company": "StartupBKK Ventures",
+      "favorite": false,
+      "createdAt": "2026-02-24T10:04:00Z"
+    },
+    {
+      "id": "6",
+      "name": "Maria Santos",
+      "email": "maria.santos@cloudnine.dev",
+      "phone": "084-222-3344",
+      "company": "TechVision Co., Ltd.",
+      "favorite": false,
+      "createdAt": "2026-02-24T10:05:00Z"
+    }
+  ],
+  "activityLogs": [
+    {
+      "id": "1",
+      "action": "CREATE",
+      "contactName": "กิตติพงษ์ วงศ์สวัสดิ์",
+      "timestamp": "2026-02-24T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "action": "CREATE",
+      "contactName": "พิมพ์ลภัส ศรีสุวรรณ",
+      "timestamp": "2026-02-24T10:01:00Z"
+    },
+    {
+      "id": "2929",
+      "action": "UNFAVORITE",
+      "contactName": "กิตติพงษ์ วงศ์สวัสดิ์",
+      "timestamp": "2026-02-24T04:49:58.189Z"
+    },
+    {
+      "id": "b11e",
+      "action": "FAVORITE",
+      "contactName": "กิตติพงษ์ วงศ์สวัสดิ์",
+      "timestamp": "2026-02-24T04:52:44.868Z"
+    },
+    {
+      "id": "1ebb",
+      "action": "UNFAVORITE",
+      "contactName": "กิตติพงษ์ วงศ์สวัสดิ์",
+      "timestamp": "2026-02-24T04:52:45.637Z"
+    }
+  ]
+}
